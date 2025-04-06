@@ -64,7 +64,7 @@ function App() {
       console.log('Starting calculation from index:', startIndex);
 
       const API_URL = process.env.NODE_ENV === 'production' 
-        ? '/api/multi-directions'
+        ? 'https://route-finder-app-d6de2cbb07a2.herokuapp.com/api/multi-directions'
         : 'http://localhost:5000/api/multi-directions';
       
       const response = await fetch(API_URL, {
