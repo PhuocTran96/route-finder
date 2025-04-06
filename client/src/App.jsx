@@ -62,8 +62,12 @@ function App() {
       
       console.log('Sending request with waypoints:', safeWaypoints);
       console.log('Starting calculation from index:', startIndex);
+
+      const API_URL = process.env.NODE_ENV === 'production' 
+        ? '/api/multi-directions'
+        : 'http://localhost:5000/api/multi-directions';
       
-      const response = await fetch('http://localhost:5000/api/multi-directions', {
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

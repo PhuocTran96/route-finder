@@ -10,12 +10,13 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.CLIENT_URL || 'https://route-finder-app-d6de2cbb07a2.herokuapp.com' 
+    : 'http://localhost:3000',
   credentials: true
 }));
-app.use(express.json());
 
-const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 // Hàm kiểm tra và chuyển đổi tọa độ
 const processCoordinate = (input) => {
