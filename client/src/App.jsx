@@ -157,7 +157,10 @@ function App() {
   };
 
   if (!token) {
-    return <Login onLogin={handleLogin} />;
+    return <Login onLogin={(token) => {
+      localStorage.setItem('token', token);
+      setToken(token);
+    }} />;
   }
 
   return (
@@ -166,7 +169,7 @@ function App() {
         googleMapsApiKey={API_KEY}
         libraries={libraries}
       >
-        <Header />
+        <Header onLogout={handleLogout}  />
         <main>
           <RouteForm 
             onFindRoute={handleFindRoute} 
