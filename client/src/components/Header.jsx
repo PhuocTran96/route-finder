@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Header = () => {
+const Header = ({ onLogout }) => {
   return (
     <header className="header">
       <h1>Route Finder</h1>
