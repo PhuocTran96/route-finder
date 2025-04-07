@@ -99,8 +99,59 @@ const getProfile = async (req, res) => {
   }
 };
 
+// Đổi mật khẩu
+const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    // Tìm người dùng hiện tại
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+    }
+
+    // Kiểm tra mật khẩu cũ
+    const isMatch = await user.comparePassword(oldPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Mật khẩu cũ không đúng' });
+    }
+
+    // Cập nhật mật khẩu mới
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Đổi mật khẩu thành công' });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi server', error: error.message });
+  }
+};
+
+// Reset password 123456
+const resetPasswordToDefault = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    // Tìm người dùng theo ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+    }
+
+    // Đặt lại mật khẩu về mặc định
+    const defaultPassword = '123456';
+    user.password = defaultPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Mật khẩu đã được đặt lại về mặc định' });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi server', error: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
-  getProfile
+  getProfile,
+  changePassword,
+  resetPasswordToDefault
 };

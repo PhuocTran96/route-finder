@@ -5,6 +5,7 @@ import RouteForm from './components/RouteForm';
 import RouteMap from './components/RouteMap';
 import RouteDetails from './components/RouteDetails';
 import DownloadButton from './components/DownloadButton';
+import Login from './components/Login';
 import './styles.css';
 
 const libraries = ['places', 'geometry'];
@@ -15,6 +16,27 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [cachedRoutes, setCachedRoutes] = useState({}); // Lưu trữ kết quả đã tính toán
+  const [token, setToken] = useState(localStorage.getItem('token'));
+
+   // Kiểm tra token khi component mount
+   useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
+
+  // Hàm đăng nhập
+  const handleLogin = (userToken) => {
+    localStorage.setItem('token', userToken);
+    setToken(userToken);
+  };
+
+  // Hàm đăng xuất
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+  };
 
   // Hàm tìm tuyến đường tối ưu
   const handleFindRoute = async (waypoints, previousWaypoints = []) => {
@@ -133,6 +155,10 @@ function App() {
       return `${minutes} phút`;
     }
   };
+
+  if (!token) {
+    return <Login onLogin={handleLogin} />;
+  }
 
   return (
     <div className="app">
