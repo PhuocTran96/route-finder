@@ -20,9 +20,12 @@ body {
 
 /* Header styles */
 .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   text-align: center;
   margin-bottom: 30px;
-  padding: 20px;
+  padding: 10px 20px;
   background: linear-gradient(90deg, #005792, #0088FF);
   color: white;
   border-radius: 8px;
@@ -34,11 +37,35 @@ body {
   margin-bottom: 10px;
 }
 
+.header-content {
+  flex: 1;
+}
+
 .header p {
   font-size: 1.2rem;
   margin-top: 10px;
   animation: rgb-blink 2s infinite;
   font-weight: bold;
+}
+
+.logout-button {
+  background-color: transparent;
+  border: 2px solid white;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: white;
+  color: #0077be;
+}
+
+.logout-button i {
+  margin-right: 5px;
 }
 
 /* RGB LED Effect */
