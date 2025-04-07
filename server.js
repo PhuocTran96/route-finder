@@ -18,9 +18,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('Kết nối MongoDB thành công'))
 .catch(err => console.error('Lỗi kết nối MongoDB:', err));
 
-// Sử dụng routes xác thực
-app.use('/api/auth', auth.routes);
-
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
@@ -29,6 +26,8 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+// Sử dụng routes xác thực
+app.use('/api/auth', auth.routes);
 
 const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
