@@ -3,10 +3,23 @@ const cors = require('cors');
 const axios = require('axios');
 const ExcelJS = require('exceljs');
 const path = require('path');
+const mongoose = require('mongoose');
+const auth = require('./auth');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Kết nối MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('Kết nối MongoDB thành công'))
+.catch(err => console.error('Lỗi kết nối MongoDB:', err));
+
+// Sử dụng routes xác thực
+app.use('/api/auth', auth.routes);
 
 // Middleware
 app.use(cors({
