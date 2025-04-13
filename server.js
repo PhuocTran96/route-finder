@@ -21,7 +21,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? process.env.CLIENT_URL || 'https://route-finder-app-d6de2cbb07a2.herokuapp.com' 
+    ? process.env.CLIENT_URL 
     : 'http://localhost:3000',
   credentials: true
 }));
