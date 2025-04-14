@@ -13,13 +13,15 @@ const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 function App() {
   const [routeData, setRouteData] = useState(null);
+  const [originalRouteData, setOriginalRouteData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [cachedRoutes, setCachedRoutes] = useState({}); // Lưu trữ kết quả đã tính toán
+  const [cachedRoutes, setCachedRoutes] = useState({});
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [isOptimized, setIsOptimized] = useState(false);
 
-   // Kiểm tra token khi component mount
-   useEffect(() => {
+  // Kiểm tra token khi component mount
+  useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
@@ -38,10 +40,12 @@ function App() {
     setToken(null);
   };
 
-  // Hàm tìm tuyến đường tối ưu
+  // Hàm tìm tuyến đường
   const handleFindRoute = async (waypoints, previousWaypoints = []) => {
     setLoading(true);
     setError(null);
+    setIsOptimized(false);
+    setOriginalRouteData(null);
 
     try {
       // Kiểm tra xem có waypoints trước đó không
@@ -96,7 +100,7 @@ function App() {
         },
         body: JSON.stringify({ 
           waypoints: safeWaypoints,
-          startIndex: startIndex > 0 ? startIndex - 1 : 0 // Gửi thêm startIndex để server biết
+          startIndex: startIndex > 0 ? startIndex - 1 : 0
         }),
       });
 
@@ -156,6 +160,42 @@ function App() {
     }
   };
 
+  const handleOptimizeRoute = async (waypoints) => {
+    setLoading(true);
+    setError(null);
+    
+    // Lưu lại dữ liệu tuyến đường ban đầu trước khi tối ưu
+    setOriginalRouteData(routeData);
+    setIsOptimized(true);
+
+    try {
+      const API_URL = process.env.NODE_ENV === 'production' 
+        ? 'https://route-finder-app-d6de2cbb07a2.herokuapp.com/api/optimize-route'
+        : 'http://localhost:5000/api/optimize-route';
+      
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ waypoints }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Không thể tối ưu hóa tuyến đường');
+      }
+
+      const data = await response.json();
+      setRouteData(data);
+    } catch (err) {
+      console.error('Error in handleOptimizeRoute:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!token) {
     return <Login onLogin={(token) => {
       localStorage.setItem('token', token);
@@ -169,22 +209,71 @@ function App() {
         googleMapsApiKey={API_KEY}
         libraries={libraries}
       >
-        <Header onLogout={handleLogout}  />
+        <Header onLogout={handleLogout} />
         <main>
           <RouteForm 
-            onFindRoute={handleFindRoute} 
+            onFindRoute={handleFindRoute}
+            onOptimizeRoute={handleOptimizeRoute} 
             previousWaypoints={routeData?.currentWaypoints || []}
           />
           {loading && <div className="loading">Đang tìm tuyến đường...</div>}
           {error && <div className="error">{error}</div>}
           {routeData && (
             <>
-              <RouteMap routeData={routeData} />
-              <RouteDetails routeData={routeData} />
-              <div className="route-summary">
-                Tổng cộng: {routeData.totalDistance} ({routeData.totalDuration})
+              <div className={`route-comparison ${isOptimized ? 'optimized' : ''}`}>
+                <div className="route-column original">
+                  <h3>Tuyến đường ban đầu</h3>
+                  <RouteMap routeData={isOptimized ? originalRouteData : routeData} />
+                  <div className="route-summary">
+                    <div className="summary-item">
+                      <i className="fas fa-road"></i>
+                      <span>Tổng khoảng cách: {isOptimized ? originalRouteData.totalDistance : routeData.totalDistance}</span>
+                    </div>
+                    <div className="summary-item">
+                      <i className="fas fa-clock"></i>
+                      <span>Tổng thời gian: {isOptimized ? originalRouteData.totalDuration : routeData.totalDuration}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {isOptimized && (
+                  <div className="route-column optimized">
+                    <h3>Tuyến đường tối ưu</h3>
+                    <RouteMap routeData={routeData} />
+                    <div className="route-summary">
+                      <div className="summary-item">
+                        <i className="fas fa-road"></i>
+                        <span>Tổng khoảng cách: {routeData.totalDistance}</span>
+                      </div>
+                      <div className="summary-item">
+                        <i className="fas fa-clock"></i>
+                        <span>Tổng thời gian: {routeData.totalDuration}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="optimization-summary">
+                      <h4>Kết quả tối ưu hóa:</h4>
+                      <p>
+                        <i className="fas fa-chart-line"></i>
+                        Tiết kiệm: {((originalRouteData.totalDistanceValue - routeData.totalDistanceValue) / originalRouteData.totalDistanceValue * 100).toFixed(1)}% khoảng cách
+                      </p>
+                      <p>
+                        <i className="fas fa-road"></i>
+                        Khoảng cách giảm: {((originalRouteData.totalDistanceValue - routeData.totalDistanceValue) / 1000).toFixed(1)} km
+                      </p>
+                      <p>
+                        <i className="fas fa-clock"></i>
+                        Thời gian giảm: {Math.floor((originalRouteData.totalDurationValue - routeData.totalDurationValue) / 60)} phút
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
-              <DownloadButton routeData={routeData} />
+              <DownloadButton 
+                routeData={routeData}
+                originalRouteData={isOptimized ? originalRouteData : null}
+                isOptimized={isOptimized}
+              />
             </>
           )}
         </main>

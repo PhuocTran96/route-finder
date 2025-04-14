@@ -155,16 +155,21 @@ body {
   background-color: rgba(0, 136, 255, 0.1);
 }
 
-.search-button {
-  background: linear-gradient(90deg, #0088FF, #005792);
-  color: white;
-  border: none;
+.search-button, .optimize-button {
+  flex: 1; /* Mỗi nút chiếm không gian bằng nhau */
+  max-width: calc(50% - 7.5px); /* Đảm bảo chiều rộng bằng nhau với khoảng cách */
   padding: 12px 20px;
+  border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
-  width: 100%;
   transition: all 0.3s;
+  text-align: center;
+}
+
+.search-button {
+  background: linear-gradient(90deg, #0088FF, #005792);
+  color: white;
 }
 
 .search-button:hover {
@@ -356,3 +361,35 @@ body {
   background-color: #f8d7da;
   color: #721c24;
 }
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 1rem;
+}
+
+.optimize-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.optimize-button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.optimization-summary {
+  background-color: #f0f8ff;
+  border: 1px solid #b0d4ff;
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 1rem;
+}
+
+.optimization-summary h4 {
+  margin-top: 0;
+  color: #0066cc;
+}
+

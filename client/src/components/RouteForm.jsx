@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StandaloneSearchBox } from '@react-google-maps/api';
 
-const RouteForm = ({ onFindRoute, previousWaypoints = [] }) => {
+const RouteForm = ({ onFindRoute, onOptimizeRoute, previousWaypoints = [] }) => {
   const [waypoints, setWaypoints] = useState([
     { address: '', coords: null, ref: React.createRef() },
     { address: '', coords: null, ref: React.createRef() }
@@ -78,6 +78,13 @@ const RouteForm = ({ onFindRoute, previousWaypoints = [] }) => {
     // Gửi cả waypoints hiện tại và trước đó để so sánh
     onFindRoute(waypointsData, previousWaypoints);
   };
+  
+  const handleOptimize = () => {
+    const waypointsData = waypoints.map(wp => 
+      wp.coords ? `${wp.coords.lat},${wp.coords.lng}` : wp.address
+    );
+    onOptimizeRoute(waypointsData);
+  };
 
   return (
     <form className="route-form" onSubmit={handleSubmit}>
@@ -137,10 +144,14 @@ const RouteForm = ({ onFindRoute, previousWaypoints = [] }) => {
           <i className="fas fa-plus"></i> Thêm điểm dừng
         </button>
       </div>
-      
-      <button type="submit" className="search-button">
-        <i className="fas fa-search"></i> Tìm đường
-      </button>
+      <div className="button-group">
+        <button type="submit" className="search-button">
+          <i className="fas fa-search"></i> Tìm đường
+        </button>
+        <button type="button" className="optimize-button" onClick={handleOptimize}>
+          <i className="fas fa-magic"></i> Tối ưu hóa tuyến đường
+        </button>
+      </div>
     </form>
   );
 };
